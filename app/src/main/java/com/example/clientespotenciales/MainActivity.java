@@ -27,8 +27,11 @@ import com.example.clientespotenciales.clases.Usuario;
 import com.example.clientespotenciales.clases.Utilities;
 import com.google.gson.Gson;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -47,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
         PackageInfo info= new PackageInfo();
 
         sweetAlertDialog = new SweetAlertDialog(this);
+        SimpleDateFormat dateFormat;
+        Date date;
         mensaje = new Mensaje();
         btnConfig = findViewById(R.id.btnConfig);
         btnAcceso = findViewById(R.id.btnAcceso);
@@ -61,8 +66,14 @@ public class MainActivity extends AppCompatActivity {
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+
         txtVVersion.setText("V."+info.versionName);
 
+        dateFormat = new SimpleDateFormat("dd/MMM/yyyy", Locale.getDefault());
+        date = new Date();
+        txtVFecha.setText("Fecha:         " + dateFormat.format(date));
+
+        //VerificaUsuarioPost();
 
         btnAcceso.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,10 +109,11 @@ public class MainActivity extends AppCompatActivity {
         try{
 
             String cadena;
-            cadena = "http://192.168.1.7:65069/api/celcia/PostConsultaUsuario";
+            cadena =  "http://192.168.1.7:65069/api/celcia/PostConsultaUsuario";
 
-            sweetAlertDialog = mensaje.progreso(MainActivity.this, "Consultando Usuario");
-            sweetAlertDialog.show();
+            startActivity(new Intent(MainActivity.this, MenuActivity.class));
+            //sweetAlertDialog = mensaje.progreso(MainActivity.this, "Consultando Usuario");
+            //sweetAlertDialog.show();
 
             StringRequest postRequest = new StringRequest(Request.Method.POST, cadena,
                     new Response.Listener<String>() {
@@ -273,8 +285,8 @@ public class MainActivity extends AppCompatActivity {
                 {
                     Map<String, String>  params = new HashMap<>();
                     // the POST parameters:
-                    params.put("user", edTUsuario.getText().toString());
-                    params.put("contraseña", edTUsuario.getText().toString());
+                    params.put("login", edTUsuario.getText().toString());
+                    params.put("passw", edTUsuario.getText().toString());
                     return params;
                 }
             };
@@ -288,7 +300,6 @@ public class MainActivity extends AppCompatActivity {
             mensaje.MensajeError(MainActivity.this, "Advertencia", ex.getMessage());
         }
     }
-
 
 
 }

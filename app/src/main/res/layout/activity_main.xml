@@ -32,7 +32,7 @@
         android:layout_marginTop="30dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:textColor="@android:color/background_dark"
+        android:textColor="@color/cardview_light_background"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtVMovil" />
 
@@ -58,7 +58,7 @@
         android:layout_marginTop="15dp"
         android:ems="10"
         android:inputType="textPassword"
-        android:textColor="@android:color/background_dark"
+        android:textColor="@color/cardview_light_background"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edTUsuario" />
 
