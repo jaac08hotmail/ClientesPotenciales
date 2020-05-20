@@ -8,6 +8,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -82,8 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (conectado) {
                     Global.g_Usuario = edTUsuario.getText().toString();
-                    Global.g_PassWord = edTPassWord.getText().toString();
-
+                    ConsultarUsuario();
                 }
                 else{
                     mensaje.MensajeAdvertencia(MainActivity.this, "Alerta", "Movil sin conexion");
@@ -94,11 +94,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void ConsultarConduce(){
+    public void ConsultarUsuario(){
         try{
 
             String cadena;
-            cadena = "http://192.168.1.7:65069/api/celcia/PostPrueba";
+            cadena = "http://192.168.1.7:65069/api/celcia/PostConsultaUsuario";
 
             sweetAlertDialog = mensaje.progreso(MainActivity.this, "Consultando Usuario");
             sweetAlertDialog.show();
@@ -116,8 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                                 if (user != null) {
-
-
+                                    startActivity(new Intent(MainActivity.this, MenuActivity.class));
                                 } else {
                                     mensaje.MensajeAdvertencia(MainActivity.this, "Advertencia", "Usuario/Contraseña Invalida");
                                     edTUsuario.requestFocus();
@@ -136,19 +135,8 @@ public class MainActivity extends AppCompatActivity {
                 protected Map<String, String> getParams() {
                     Map<String, String> params = new HashMap<>();
                     // the POST parameters:
-                    params.put("dato1", edTConduce.getText().toString());
-                    params.put("dato2", txtVFechaSal.getText().toString());
-                    params.put("dato3", Global.g_Manual);
-                    params.put("dato4", LEliminarRfid);
-                    params.put("dato5", Global.g_Min_Venci.toString());
-                    params.put("dato6", txtVHoraSal.getText().toString());
-
-                    if ( L_ConsecutivoRfId == null)
-                        L_ConsecutivoRfId = Double.parseDouble("-1");
-
-                    params.put("dato7", String.valueOf(L_ConsecutivoRfId.intValue()));
-                    params.put("dato8", Global.g_Cliente);
-                    params.put("idmovil", Global.g_PC);
+                    params.put("login", edTUsuario.getText().toString());
+                    params.put("passw", edTPassWord.getText().toString());
                     return params;
                 }
             };
@@ -157,22 +145,63 @@ public class MainActivity extends AppCompatActivity {
                 //tiempo de espera de conexcion initialTimeout 4000 maxNumRetries = 0
                 postRequest.setRetryPolicy(new DefaultRetryPolicy(8000,
                         0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-                Volley.newRequestQueue(SalidaActivity.this).add(postRequest);
+                Volley.newRequestQueue(MainActivity.this).add(postRequest);
             }
             catch(Exception e){
 
                 sweetAlertDialog.dismiss();
-                mensaje.MensajeError(SalidaActivity.this, "9.Advertencia", e.getMessage());
+                mensaje.MensajeError(MainActivity.this, "9.Advertencia", e.getMessage());
                 e.printStackTrace();
             }
         }
         catch(Exception ex){
 
             sweetAlertDialog.dismiss();
-            mensaje.MensajeError(SalidaActivity.this, "9.Advertencia", ex.getMessage());
+            mensaje.MensajeError(MainActivity.this, "9.Advertencia", ex.getMessage());
         }
     }
 
+    private final Response.ErrorListener errorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            NetworkResponse networkResponse = error.networkResponse;
+            try {
+                sweetAlertDialog.dismiss();
+                //counter.cancel();
+                //startCounter = false;
+                if (networkResponse != null && networkResponse.statusCode == 400) {
+                    error.printStackTrace();
+                    sweetAlertDialog.dismiss();
+                    mensaje.MensajeAdvertencia(MainActivity.this, "7.Advertencia", error.toString());
+                    //startCounter = false;
+                    //counter.onFinish();
+                    return;
+                }
+                String msj = error.getMessage();
+                if (msj == null) {
+                    error.printStackTrace();
+                    sweetAlertDialog.dismiss();
+                    mensaje.MensajeAdvertencia(MainActivity.this, "8.Advertencia", "Servidor No Responde");
+                    //startCounter = false;
+                    //counter.onFinish();
+                    return;
+                } else {
+                    error.printStackTrace();
+                    sweetAlertDialog.dismiss();
+                    mensaje.MensajeAdvertencia(MainActivity.this, "Advertencia", msj.toString());
+                    //startCounter = false;
+                    //counter.onFinish();
+                    return;
+                }
+            }
+            catch(WindowManager.BadTokenException e){
+                e.printStackTrace();
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+    };
 
     public void  VerificaUsuarioPost()  {
 
